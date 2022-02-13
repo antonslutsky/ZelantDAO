@@ -10,8 +10,9 @@
     referrerpolicy="no-referrer"
   ></script>
 </head>
-Hello world
-<body class="h-full">
+
+<body style="background-image: url('https://www.yaamava.com/sites/default/files/2021-09/casino_slot_floor_03.jpg');"
+ class="h-full">
   <div
     class="
       flex
@@ -23,69 +24,7 @@ Hello world
       space-x-4
     "
   >
-    <div class="flex flex-col space-y-6">
-      <h1 class="text-center">Zelant DAO Interface</h1>
-      <div class="flex flex-col space-y-2">
-        <button
-          onclick="loginWithEth()"
-          class="
-            rounded
-            bg-white
-            border border-gray-400
-            hover:bg-gray-100
-            py-2
-            px-4
-            text-gray-600
-            hover:text-gray-700
-          "
-        >
-          Login & Save ETH Address
-        </button>
-        <p id="userAddress" class="text-gray-600"></p>
-        <table>
-          <tr>
-            <td>Contract AVAX Balance:</td>
-            <td id="base_balance" class="text-gray-600"></td>
-          </tr>
-        </table>
-        <button
-          id="logoutButton"
-          onclick="logout()"
-          class="hidden text-blue-500 underline"
-        >
-          Logout
-        </button>
-      </div>
-      <h1 class="text-center">Your LEVEL Balances</h1>
-      <table>
-        <tr>
-          <td>LEVEL 0 Balance:</td>
-          <td id="LEVEL0Balance" class="text-gray-600"></td>
-        </tr>
-        <tr>
-          <td>LEVEL 1 Balance:</td>
-          <td id="LEVEL1Balance" class="text-gray-600"></td>
-        </tr>
-        <tr>
-          <td>LEVEL 2 Balance:</td>
-          <td id="LEVEL2Balance" class="text-gray-600"></td>
-        </tr>
-        <tr>
-          <td>LEVEL 3 Balance:</td>
-          <td id="LEVEL3Balance" class="text-gray-600"></td>
-        </tr>
-        <tr>
-          <td>LEVEL 4 Balance:</td>
-          <td id="LEVEL4Balance" class="text-gray-600"></td>
-        </tr>
-      </table>
-      <button
-        id="getContractInfo"
-        onclick="getContractSymbol()"
-        class="rounded bg-blue-500 hover:bg-blue-700 py-2 px-4 text-white"
-      >
-        Check Contract Status
-      </button>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/2017-D_Roosevelt_dime_obverse_transparent.png/440px-2017-D_Roosevelt_dime_obverse_transparent.png" id = "headsOrTails"></img>
       <p id="123"></p>
       <button
         id="FlipTheCoin"
@@ -95,9 +34,6 @@ Hello world
         FlipCoin
       </button>
 
-      <div class="flex flex-col space-y-2"></div>
-    </div>
-  </div>
 
   <script>
     //const CONTRACT_ADDRESS = "0xc31E21f97043b0538Ffc948c27AeD80866344e9e";
@@ -137,15 +73,8 @@ Hello world
         return false;
       }
 
-      document.getElementById(
-        "userAddress"
-      ).innerText = `Your Address: ${truncateAddress(window.userAddress)}`;
-      document.getElementById("logoutButton").classList.remove("hidden");
 
-      var level0_balance = await getLevelBalance(0);
-      document.getElementById("LEVEL0Balance").innerText = level0_balance;
       var base_balance = await getContractBaseBalance();
-      document.getElementById("base_balance").innerText = `${base_balance / (10**18)} AVAX`;
     }
 
     // remove stored user address and reset frontend
@@ -197,16 +126,7 @@ Hello world
       alert(`Contract ${CONTRACT_ADDRESS} Status: ${status}`);
     }
 
-    async function getLevelBalance(level_id) {
-      const contract = new window.web3.eth.Contract(
-        window.ABI,
-        CONTRACT_ADDRESS
-      );
-      const level0_balance = contract.methods
-        .balanceOf(window.userAddress, level_id)
-        .call({ from: window.userAddress });
-      return level0_balance;
-    }
+
 
     async function getContractBaseBalance(level_id) {
       //step 1 find the contract
@@ -230,7 +150,13 @@ Hello world
       const tavi = new window.web3.eth.Contract(window.ABI,CONTRACT_ADDRESS);
       const results = await tavi.methods.flipCoin().call({ from: window.userAddress });
       document.getElementById("123").innerText = results;
-      return results;
+      if(results == 0){
+        document.getElementById("headsOrTails").src = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/2017-D_Roosevelt_dime_obverse_transparent.png/440px-2017-D_Roosevelt_dime_obverse_transparent.png";
+        }
+      else {
+        document.getElementById("headsOrTails").src = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/2017-D_Roosevelt_dime_reverse_transparent.png/440px-2017-D_Roosevelt_dime_reverse_transparent.png";
+
+      }
     }
 
 
