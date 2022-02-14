@@ -8,8 +8,16 @@ contract ZelantDAO_Interface is ERC1155 {
     
     ERC1155 CONTRACT_IMPL;
 
+    address admin;
+
+    modifier onlyAdmin {
+      require(msg.sender == admin);
+      _;
+   }
+
     constructor() public ERC1155("https://zelantsoft.com/api/item/{id}.json") {
-        CONTRACT_IMPL = ERC1155(0xc31E21f97043b0538Ffc948c27AeD80866344e9e);
+        admin = msg.sender;
+        setContractImpl(0xc31E21f97043b0538Ffc948c27AeD80866344e9e);
     }
     
     function safeTransferFrom(
@@ -44,13 +52,15 @@ contract ZelantDAO_Interface is ERC1155 {
         );
     }
     
+    function setContractImpl(address contractImpl) public onlyAdmin {
+        if(msg.sender == admin)
+        CONTRACT_IMPL = ERC1155(contractImpl);
+    }
 
-    
     function balanceOf(address account, uint256 id) public view virtual override returns (uint256) {
         return CONTRACT_IMPL.balanceOf( account,  id);
     }
 
-    
     function balanceOfBatch(address[] memory accounts, uint256[] memory ids)
         public
         view
@@ -61,7 +71,6 @@ contract ZelantDAO_Interface is ERC1155 {
         return CONTRACT_IMPL.balanceOfBatch(accounts, ids);
     }
 
-    
     function setApprovalForAll(address operator, bool approved) public virtual override {
         CONTRACT_IMPL.setApprovalForAll( operator,  approved);
     }
