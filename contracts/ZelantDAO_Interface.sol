@@ -53,7 +53,6 @@ contract ZelantDAO_Interface is ERC1155 {
     }
     
     function setContractImpl(address contractImpl) public onlyAdmin {
-        if(msg.sender == admin)
         CONTRACT_IMPL = ERC1155(contractImpl);
     }
 
