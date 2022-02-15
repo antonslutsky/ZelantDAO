@@ -1,3 +1,4 @@
+<html>
 <head>
   <link
     href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css"
@@ -9,6 +10,14 @@
     crossorigin="anonymous"
     referrerpolicy="no-referrer"
   ></script>
+  <style>
+    .dao_rounded {
+        border-radius: 3.25rem;
+        padding:30px;
+        background-color:white;
+        text-align:center;
+    }
+  </style>
 </head>
 
 <body style="background-image: url('https://www.yaamava.com/sites/default/files/2021-09/casino_slot_floor_03.jpg');"
@@ -19,21 +28,41 @@
       w-full
       h-full
       justify-center
-      content-center
       items-center
       space-x-4
     "
+    style="border:3px white dotted"
   >
+      <div class="dao_rounded" style="">
+        <div style="font-size:50pt">Bet Token:</div>
+        <input type="text" id="bet_amount" placeholder="You bet Now!" style="border:10px red dotted; font-size:30pt; text-align:center"/>
+      </div>
+      <div class="dao_rounded">
+        <div style="font-size:30pt">Choose Side:</div>
+        <select name="coin_choice" id="coin_choice" style="font-size:50px; border:10px red dotted;">
+            <option value="0">Heads!</option>
+            <option value="1">Tails!</option>
+        </select>
+      </div>
+      <div class="dao_rounded">
+        <button
+          id="FlipTheCoin"
+          onclick="flipTheCoin()"
+          class="rounded bg-blue-500 hover:bg-blue-700 py-2 px-4 text-white"
+          style="font-size:30px; border:10px red dotted"
+        >
+          Flip Coin!
+        </button>
+      </div>
       <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/2017-D_Roosevelt_dime_obverse_transparent.png/440px-2017-D_Roosevelt_dime_obverse_transparent.png" id = "headsOrTails"></img>
-      <p id="123"></p>
-      <button
-        id="FlipTheCoin"
-        onclick="flipTheCoin()"
-        class="rounded bg-blue-500 hover:bg-blue-700 py-2 px-4 text-white"
-      >
-        FlipCoin
-      </button>
 
+      <div class="dao_rounded">
+        <p id="123" style="border:10px green dotted">Play Now!</p>
+      </div>
+
+
+    </div>
+  </body>
 
   <script>
     //const CONTRACT_ADDRESS = "0xc31E21f97043b0538Ffc948c27AeD80866344e9e";
@@ -147,9 +176,10 @@
 
 
     async function flipTheCoin() {
+      document.getElementById("123").innerHTML = "<img src='https://cdn.dribbble.com/users/1244407/screenshots/6757101/gif.gif'/>";
       const tavi = new window.web3.eth.Contract(window.ABI,CONTRACT_ADDRESS);
       const results = await tavi.methods.flipCoin().call({ from: window.userAddress });
-      document.getElementById("123").innerText = results;
+
       if(results == 0){
         document.getElementById("headsOrTails").src = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/2017-D_Roosevelt_dime_obverse_transparent.png/440px-2017-D_Roosevelt_dime_obverse_transparent.png";
         }
@@ -157,6 +187,14 @@
         document.getElementById("headsOrTails").src = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/2017-D_Roosevelt_dime_reverse_transparent.png/440px-2017-D_Roosevelt_dime_reverse_transparent.png";
 
       }
+
+      var win = results == document.getElementById("coin_choice").value;
+
+      var icn_src = win ? "https://www.transparentpng.com/thumb/winner/1eurti-golden-winner-cut-out-png-images.png" : "https://www.askideas.com/media/73/You-Are-A-Loser-Image.png"
+
+      document.getElementById("123").innerHTML = `<img src="${icn_src}"/>`;
+
+      console.log("Coin flipped: "+results);
     }
 
 
@@ -202,4 +240,4 @@
 	}
 ];
   </script>
-</body>
+</html>
