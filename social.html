@@ -1,0 +1,288 @@
+<head>
+  <link
+    href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css"
+    rel="stylesheet"
+  />
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.1/web3.min.js"
+    integrity="sha512-5erpERW8MxcHDF7Xea9eBQPiRtxbse70pFcaHJuOhdEBQeAxGQjUwgJbuBDWve+xP/u5IoJbKjyJk50qCnMD7A=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
+</head>
+
+<body class="h-full">
+  <div>
+    <div style="text-align:center">
+      <h1 class="text-center">ZSocial DAO</h1>
+      <div style="width:20%; border-right:2px black solid; height:100%; float:left">
+        <button
+          id="loginButton"
+          onclick="loginWithEth()"
+          class="
+            rounded
+            bg-white
+            border border-gray-400
+            hover:bg-gray-100
+            py-2
+            px-4
+            text-gray-600
+            hover:text-gray-700
+          "
+        >
+          Login
+        </button>
+        <p id="userAddress" class="text-gray-600"></p>
+        <br/>
+        <button
+          id="logoutButton"
+          onclick="logout()"
+          class="
+            hidden
+            rounded
+            bg-white
+            border border-gray-400
+            hover:bg-gray-100
+            py-2
+            px-4
+            text-gray-600
+            hover:text-gray-700
+          "
+        >
+          Logout
+        </button>
+      </div>
+
+
+      <div style="width:80%; float:right; text-align:left; border:1px green solid">
+        <div style="margin:10px" id="events_logs">
+          <div id="msg_11231231" style="border-bottom:1px green solid">
+            Loading...
+          </div>
+        </div>
+        <div>
+          <input type="text" id="msg_text" style="border:2px red dotted; float:left; width:50%"
+            class="
+              rounded
+              bg-green
+              border border-gray-400
+              hover:bg-gray-100
+              py-2
+              px-4
+              text-gray-600
+              hover:text-gray-700
+            "
+          />
+          <button
+            id="sendButton"
+            onclick="zs_sendMessage()"
+            class="
+              rounded
+              bg-green
+              border border-gray-400
+              hover:bg-gray-100
+              py-2
+              px-4
+              text-gray-600
+              hover:text-gray-700
+            "
+            style="float:right"
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    const ZSOCIAL_DAO_CONTRACT_ADDRESS = "0x6D6591771fce5f2F5CF5647589a5c420E3BE9e0c";
+    window.userAddress = null;
+    window.onload = async () => {
+      // Init Web3 connected to ETH network
+      if (window.ethereum) {
+        window.web3 = new Web3(window.ethereum);
+      } else {
+        alert("No ETH brower extension detected.");
+      }
+
+      // Load in Localstore key
+      window.userAddress = window.localStorage.getItem("userAddress");
+      showAddress();
+      zs_fetchEvents();
+
+      const contract = new window.web3.eth.Contract(
+        window.ABI,
+        ZSOCIAL_DAO_CONTRACT_ADDRESS
+      );
+      contract.events.ZSocialMessage()
+        .on('data', (event) => {
+        	console.log("EVENT: ",event);
+          appendEvent(event);
+        })
+        .on('error', console.error);
+    };
+
+    // Use this function to turn a 42 character ETH address
+    // into an address like 0x345...12345
+    function truncateAddress(address) {
+      if (!address) {
+        return "";
+      }
+      return `${address.substr(0, 5)}...${address.substr(
+        address.length - 5,
+        address.length
+      )}`;
+    }
+
+    // Display or remove the users know address on the frontend
+    async function showAddress() {
+      if (!window.userAddress) {
+        document.getElementById("userAddress").innerText = "";
+        document.getElementById("logoutButton").classList.add("hidden");
+        document.getElementById("loginButton").classList.remove("hidden");
+        return false;
+      }
+
+      document.getElementById(
+        "userAddress"
+      ).innerText = `Your Address: ${truncateAddress(window.userAddress)}`;
+      document.getElementById("logoutButton").classList.remove("hidden");
+      document.getElementById("loginButton").classList.add("hidden");
+
+
+
+    }
+
+    // remove stored user address and reset frontend
+    function logout() {
+      window.userAddress = null;
+      window.localStorage.removeItem("userAddress");
+      document.getElementById("userAddress").innerText = "";
+      showAddress();
+    }
+
+    // Login with Web3 via Metamasks window.ethereum library
+    async function loginWithEth() {
+      if (window.web3) {
+        try {
+          // We use this since ethereum.enable() is deprecated. This method is not
+          // available in Web3JS - so we call it directly from metamasks' library
+          const selectedAccount = await window.ethereum
+            .request({
+              method: "eth_requestAccounts",
+            })
+            .then((accounts) => accounts[0])
+            .catch(() => {
+              throw Error("No account selected!");
+            });
+          window.userAddress = selectedAccount;
+          window.localStorage.setItem("userAddress", selectedAccount);
+          showAddress();
+        } catch (error) {
+          console.error(error);
+        }
+      } else {
+        alert("No ETH brower extension detected.");
+      }
+    }
+
+    async function zs_fetchEvents() {
+
+      const contract = new window.web3.eth.Contract(
+        window.ABI,
+        ZSOCIAL_DAO_CONTRACT_ADDRESS
+      );
+      contract.getPastEvents('ZSocialMessage', {
+          fromBlock: 0,
+          toBlock: 'latest'
+      }, function(error, events){ console.log(events); })
+      .then(function(events){
+          console.log(events) // same results as the optional callback above
+          displayEvents(events);
+
+      });
+    }
+
+    function displayEvents(events){
+      const eventsLogs = document.getElementById("events_logs");
+      eventsLogs.innerHTML="";
+      events.forEach(element => {
+        appendEvent(element);
+      });
+
+    }
+
+    function appendEvent(element){
+      const eventsLogs = document.getElementById("events_logs");
+      var _div = document.createElement('div');
+      _div.style = "border-bottom:1px green solid";
+      _div.innerText = element.returnValues.text;
+
+      eventsLogs.appendChild(_div);
+    }
+
+
+    async function zs_sendMessage() {
+      var sendButton = document.getElementById("sendButton");
+      sendButton.setAttribute("disabled","disabled");
+      var msgTextInput = document.getElementById("msg_text");
+      msgTextInput.setAttribute("disabled","disabled");
+
+      const msgText = msgTextInput.value;
+      const contract = new window.web3.eth.Contract(
+        window.ABI,
+        ZSOCIAL_DAO_CONTRACT_ADDRESS
+      );
+      const resp = await contract.methods
+        .sendMessage(msgText)
+        .send({ from: window.userAddress });
+      sendButton.removeAttribute("disabled");
+      msgTextInput.removeAttribute("disabled");
+      //alert(`Send ${text}`);
+      //zs_fetchEvents();
+    }
+
+
+    window.ABI = [
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "text",
+				"type": "string"
+			}
+		],
+		"name": "ZSocialMessage",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "text",
+				"type": "string"
+			}
+		],
+		"name": "sendMessage",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "payable",
+		"type": "function"
+	}
+];
+  </script>
+</body>
